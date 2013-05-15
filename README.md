@@ -42,7 +42,7 @@ jasper.describe 'Wait For Library to Load', ->
     jasper.evaluate ->
       !!window.MyLibrary
 
-  @openAndWait url, myLibraryIsLoaded ->
+  @openAndWait url, myLibraryIsLoaded, ->
 
     # Assert anything by running arbitrary code on the page
     @customAssertions
@@ -67,10 +67,8 @@ jasper.describe 'System Monitoring Assertions', ->
   ]
 
 jasper.run ->
-  @test.renderResults(true, @exit_code, @cli.get('save') || false)
+  @test.renderResults(true, @exitCode, @cli.get('save') || false)
 ```
-
-### Executing the script
 
 ```bash
 $ casperjs path/to/your_tests.coffee
