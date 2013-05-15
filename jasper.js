@@ -47,17 +47,15 @@ jasper.test.on('fail', function(fail) {
 var TeamCity = {};
 
 TeamCity.encode = function(message) {
-  return message.replace(new RegExp("(\\||\'|\\[|\\])", "g"), "|$1");
+  return (message + '').replace(new RegExp("(\\||\'|\\[|\\])", "g"), "|$1");
 };
 
 TeamCity.message = function(name, attributes) {
   if (IS_TEAMCITY) {
     var message = "##teamcity[" + name;
-    var attribute_name;
-    for (attribute_name in attributes) {
-      var attribute_value = attributes[attribute_name];
-      message += " " + attribute_name + "='" + TeamCity.encode(attribute_value) + "'";
-    }
+    forEach(attributes, function (value, key) {
+      message += " " + key + "='" + TeamCity.encode(value) + "'";
+    });
     message += "]";
     jasper.echo(message);
   }
@@ -80,9 +78,7 @@ jasper.describe = function(description, fn) {
     TeamCity.message('testSuiteStarted', { name: description });
     this.then(fn);
     this.then(function() {
-      TeamCity.message('testSuiteFinished', {
-        name: description
-      });
+      TeamCity.message('testSuiteFinished', { name: description });
     });
   });
 };
