@@ -34,6 +34,9 @@ var jasper = require('casper').create({
 var SCREENSHOT_DIR = jasper.cli.get('screenshots_dir') || 'screenshots';
 var IS_TEAMCITY = !!jasper.cli.get('teamcity');
 
+// State
+
+jasper.onlyDescribeIsActive = false;
 jasper.lastDescribe = '';
 jasper.exitCode = 0;
 
@@ -85,16 +88,27 @@ TeamCity.echo = function(message, failed) {
 
 // Navigation Helpers
 
-jasper.describe = function(description, fn) {
-  this.wait(DELAY_BETWEEN_DESCRIBE_BLOCKS, function() {
-    this.lastDescribe = description;
-    this.test.comment(description);
-    TeamCity.message('testSuiteStarted', { name: description });
-    this.then(fn);
-    this.then(function() {
-      TeamCity.message('testSuiteFinished', { name: description });
+jasper.describe = function(description, fn, skipOnlyDescribeCheck) {
+  this.then(function () {
+    if (this.onlyDescribeIsActive && skipOnlyDescribeCheck !== true) {
+      return this.echo('Skipping "' + description + '" due to describeOnly');
+    }
+    this.wait(DELAY_BETWEEN_DESCRIBE_BLOCKS, function() {
+      this.page.clearCookies();
+      this.lastDescribe = description;
+      this.test.comment(description);
+      TeamCity.message('testSuiteStarted', { name: description });
+      this.then(fn);
+      this.then(function() {
+        TeamCity.message('testSuiteFinished', { name: description });
+      });
     });
   });
+};
+
+jasper.describeOnly = function (description, fn) {
+  this.onlyDescribeIsActive = true;
+  return this.describe(description, fn, true);
 };
 
 jasper.xdescribe = function(description, fn) {
