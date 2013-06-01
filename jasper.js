@@ -4,16 +4,30 @@
  */
 
 var fs = require('fs');
+var utils = require('utils');
 
 var DELAY_BETWEEN_DESCRIBE_BLOCKS = 5000;
 var REMOTE_SITE_TIMEOUT = 30000;
 var WAIT_AFTER_PAGE_LOAD = 5000;
 
 var jasper = require('casper').create({
+  stepTimeout: 600000, // 10 minutes, casperjs default is none
+  waitTimeout: 300000, // 5 minutes, casperjs default is 5 seconds
+  timeout: 3600000, // 1 hour
   verbose: true,
+  exitOnError: false,
   viewportSize: {
     width: 1000,
     height: 800
+  },
+  onStepTimeout: function _onStepTimeout(timeout, stepNum) {
+    console.error(jasper.getColorizer().colorize("Maximum step execution timeout exceeded for step " + stepNum, 'RED_BAR', 80));
+  },
+  onTimeout: function _onTimeout(timeout) {
+    console.error(jasper.getColorizer().colorize(utils.format("Script timeout of %dms reached.", timeout), 'RED_BAR', 80));
+  },
+  onWaitTimeout: function _onWaitTimeout(timeout) {
+    console.error(jasper.getColorizer().colorize(utils.format("Wait timeout of %dms reached.", timeout), 'RED_BAR', 80));
   }
 });
 
