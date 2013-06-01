@@ -66,8 +66,7 @@ jasper.describe 'System Monitoring Assertions', ->
     'http://example.com/foo.html'
   ]
 
-jasper.run ->
-  @test.renderResults(true, @exitCode, @cli.get('save') || false)
+jasper.run()
 ```
 
 ```bash

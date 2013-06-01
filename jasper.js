@@ -113,6 +113,14 @@ jasper.openAndWait = function(url, eval_fn, then_fn) {
   });
 };
 
+jasper.nativeRun = jasper.run;
+
+jasper.run = function () {
+  this.nativeRun(function () {
+    this.test.renderResults(true, this.exitCode, this.cli.get('save') || false);
+  });
+};
+
 // Assertions
 
 jasper.assertSelectors = function(selectors) {
