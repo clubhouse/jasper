@@ -40,7 +40,33 @@ jasper.onlyDescribeIsActive = false;
 jasper.lastDescribe = '';
 jasper.exitCode = 0;
 
+// Benchmark
+
+var benchmark = function() {
+  jasper.startTime = jasper.startTime || new Date().getTime();
+  return '+' + ((new Date().getTime() - jasper.startTime) / 1000) + 's';
+};
+
 // Event Handlers
+
+jasper.on('popup.created', function (page) {
+  console.log('popup created for url: ' + page.url, benchmark());
+});
+
+/*
+jasper.on('remote.message', function (msg) {
+  console.log('remote message', benchmark());
+  this.echo(msg.substr(0, 100) + '...', 'COMMENT');
+});
+*/
+
+jasper.on('step.start', function (step) {
+  console.log('step started', benchmark(), this.currentHTTPStatus, this.getCurrentUrl());
+});
+
+jasper.on('step.timeout', function () {
+  console.log('step timeout', benchmark());
+});
 
 jasper.on('error', function(msg, backtrace) {
   jasper.exitCode = 1;
