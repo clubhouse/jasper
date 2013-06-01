@@ -39,33 +39,41 @@ var IS_TEAMCITY = !!jasper.cli.get('teamcity');
 jasper.onlyDescribeIsActive = false;
 jasper.lastDescribe = '';
 jasper.exitCode = 0;
+jasper.startTime = new Date().getTime();
 
 // Benchmark
 
 var benchmark = function() {
-  jasper.startTime = jasper.startTime || new Date().getTime();
-  return '+' + ((new Date().getTime() - jasper.startTime) / 1000) + 's';
+  jasper.lastBenchmarkTime = jasper.lastBenchmarkTime || jasper.startTime;
+
+  var now = new Date().getTime();
+  var sinceLastTime = '+' + ((now - jasper.lastBenchmarkTime) / 1000) + 's';
+  var totalTime = '[' + ((now - jasper.startTime) / 1000) + 's]';
+  jasper.lastBenchmarkTime = now;
+
+  return jasper.getColorizer().colorize(totalTime + ' ' + sinceLastTime, 'PARAMETER');
 };
 
 // Event Handlers
 
-jasper.on('popup.created', function (page) {
-  console.log('popup created for url: ' + page.url, benchmark());
+jasper.on('url.changed', function (url) {
+  console.log(benchmark(), 'url changed to:', url);
 });
 
-/*
-jasper.on('remote.message', function (msg) {
-  console.log('remote message', benchmark());
-  this.echo(msg.substr(0, 100) + '...', 'COMMENT');
+jasper.on('popup.created', function (page) {
+  console.log(benchmark(), 'popup created for url:', page.url);
 });
-*/
+
+jasper.on('popup.closed', function (page) {
+  console.log(benchmark(), 'popup closed for url:', page.url);
+});
 
 jasper.on('step.start', function (step) {
-  console.log('step started', benchmark(), this.currentHTTPStatus, this.getCurrentUrl());
+  console.log(benchmark(), 'step started');
 });
 
 jasper.on('step.timeout', function () {
-  console.log('step timeout', benchmark());
+  console.log(benchmark(), 'step timeout');
 });
 
 jasper.on('error', function(msg, backtrace) {
