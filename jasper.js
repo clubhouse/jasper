@@ -128,6 +128,7 @@ jasper.describe = function(description, fn, skipOnlyDescribeCheck) {
       return this.echo('Skipping "' + description + '" due to describeOnly');
     }
     this.wait(DELAY_BETWEEN_DESCRIBE_BLOCKS, function() {
+      jasper.closePopups();
       this.page.clearCookies();
       this.lastDescribe = description;
       this.test.comment(description);
@@ -322,6 +323,10 @@ jasper.formatFutureDate = function(days_ahead, format) {
 };
 
 jasper.closePopups = function() {
+  forEach(this.popups, function (popup) {
+    popup.close();
+  });
+
   this.popups.splice(0);
 };
 
